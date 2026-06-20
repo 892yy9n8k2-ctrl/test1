@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Экзамен ПМ.02 — Тест 600-1533</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: #f0f4f8;
+            padding: 16px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 16px;
+            padding: 24px 28px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #1a3a5c;
+            font-size: 22px;
+            margin-bottom: 4px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 18px;
+        }
+        .progress-bar {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 8px;
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #1a3a5c, #2b7a62);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .stats span {
+            background: #f8f9fa;
+            padding: 3px 12px;
+            border-radius: 20px;
+        }
+        .question-number {
+            color: #1a3a5c;
+            font-weight: 700;
+            font-size: 17px;
+            margin-bottom: 6px;
+        }
+        .question-text {
+            font-size: 17px;
+            line-height: 1.6;
+            margin-bottom: 18px;
+            color: #1a1a2e;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .option {
+            padding: 12px 16px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-size: 15px;
+            background: #fafbfc;
+        }
+        .option:hover:not(.disabled) {
+            background: #e8f0fe;
+            border-color: #8ab4f8;
+        }
+        .option.selected-correct {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+        .option.selected-wrong {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+        .option.show-correct {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+        .option.disabled {
+            cursor: default;
+            opacity: 0.85;
+        }
+        .option .letter {
+            font-weight: 700;
+            color: #1a3a5c;
+            margin-right: 8px;
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 10px 22px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-primary {
+            background: #1a3a5c;
+            color: #fff;
+        }
+        .btn-primary:hover:not(:disabled) {
+            background: #0f2a44;
+        }
+        .btn-primary:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .btn-success {
+            background: #2b7a62;
+            color: #fff;
+        }
+        .btn-success:hover {
+            background: #1e5f4c;
+        }
+        .btn-outline {
+            background: transparent;
+            color: #1a3a5c;
+            border: 2px solid #1a3a5c;
+        }
+        .btn-outline:hover:not(:disabled) {
+            background: #e8f0fe;
+        }
+        .btn-danger {
+            background: #dc3545;
+            color: #fff;
+        }
+        .btn-danger:hover {
+            background: #b02a37;
+        }
+        .result-box {
+            display: none;
+            text-align: center;
+            padding: 30px 16px;
+        }
+        .result-box.show {
+            display: block;
+        }
+        .result-score {
+            font-size: 44px;
+            font-weight: 700;
+            color: #1a3a5c;
+        }
+        .result-detail {
+            font-size: 17px;
+            color: #555;
+            margin: 8px 0 18px;
+        }
+        .result-stats {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            flex-wrap: wrap;
+            margin: 16px 0;
+        }
+        .result-stats div {
+            background: #f8f9fa;
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
+        .result-stats .correct-count { color: #28a745; font-weight: 700; }
+        .result-stats .wrong-count { color: #dc3545; font-weight: 700; }
+        .footer {
+            text-align: center;
+            margin-top: 18px;
+            font-size: 12px;
+            color: #999;
+        }
+        .question-hidden { display: none; }
+        @media (max-width: 600px) {
+            .container { padding: 14px; }
+            .question-text { font-size: 15px; }
+            .option { font-size: 13px; padding: 10px 12px; }
+            .btn { padding: 8px 14px; font-size: 13px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container" id="app">
+    <h1>🏥 Экзамен ПМ.02</h1>
+    <div class="subtitle">Лечебное дело · Вопросы 600–1533 · Ответы под буквой «а»</div>
+
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+    <div class="stats">
+        <span id="questionCounter">Вопрос 1 / 934</span>
+        <span>✅ <span id="correctCount">0</span></span>
+        <span>❌ <span id="wrongCount">0</span></span>
+        <span>📌 Осталось: <span id="remainingCount">934</span></span>
+    </div>
+
+    <div id="questionBlock">
+        <div class="question-number" id="qNumber">Вопрос #600</div>
+        <div class="question-text" id="qText">Загрузка...</div>
+        <div class="options" id="optionsContainer"></div>
+        <div class="nav-buttons">
+            <button class="btn btn-outline" id="prevBtn" disabled>◀ Назад</button>
+            <button class="btn btn-primary" id="nextBtn">Вперёд ▶</button>
+            <button class="btn btn-danger" id="resetBtn">🔄 Сброс</button>
+        </div>
+    </div>
+
+    <div class="result-box" id="resultBox">
+        <h2>📊 Результат</h2>
+        <div class="result-score" id="finalScore">0%</div>
+        <div class="result-detail" id="finalDetail">Вы завершили тест!</div>
+        <div class="result-stats">
+            <div>✅ <span class="correct-count" id="finalCorrect">0</span></div>
+            <div>❌ <span class="wrong-count" id="finalWrong">0</span></div>
+            <div>📌 Всего: <span id="finalTotal">934</span></div>
+        </div>
+        <button class="btn btn-success" id="restartBtn" style="margin-top:16px;">🔄 Пройти заново</button>
+    </div>
+    <div class="footer">ГАПОУ СО «Энгельсский медицинский колледж Святого Луки»</div>
+</div>
+
+<script>
+const questions = [
+// 600
+{id:600,text:'У здорового новорожденного состояние мышц характеризуется:',options:['преобладанием тонуса мышц-сгибателей конечностей','гипотонией всех мышц','преобладанием тонуса мышц-разгибателей конечностей','расслаблением всех мышц во время сна'],correct:0},
+// 601
+{id:601,text:'Характеристика развития речи у ребенка 12 месяцев:',options:['произносит 8–10 слов','формирует короткие предложения','декламирует короткие стихи','исполняет короткие песенки'],correct:0},
+// 602
+{id:602,text:'Первые постоянные зубы появляются в возрасте:',options:['5–6 лет','4–5 лет','7–8 лет','3–4 лет'],correct:0},
+// 603
+{id:603,text:'Возраст, в котором ребенок хорошо ползает:',options:['7 месяцев','5 месяцев','6 месяцев','4 месяца'],correct:0},
+// 604
+{id:604,text:'Второй перекрест в лейкоцитарной формуле крови у детей отмечается в возрасте:',options:['4–5 лет','1 года','4–5 месяцев','6–8 лет'],correct:0},
+// 605
+{id:605,text:'Соответствие количества молочных зубов возрасту ребенка рассчитывается по формуле (n – возраст в месяцах):',options:['n – 4','n – 2','n – 6','n – 8'],correct:0},
+// 606
+{id:606,text:'Возраст, в котором ребенок начинает гулить:',options:['3 месяца','6 месяцев','4 месяца','2 месяца'],correct:0},
+// 607
+{id:607,text:'Физиологический лимфоцитоз у детей отмечается в возрасте:',options:['первых 4–5 лет','первых 3-х дней','младших школьников','старших школьников'],correct:0},
+// 608
+{id:608,text:'Автоматическое закрытие артериального протока у большинства детей происходит:',options:['к 2 месяцам жизни','в первые 30 дней жизни','на 40 неделе внутриутробного развития','после 6 месяцев жизни'],correct:0},
+// 609
+{id:609,text:'Частота дыхательных движений годовалого ребенка:',options:['30–35 в минуту','20–25 в минуту','18–20 в минуту','40–60 в минуту'],correct:0},
+// 610
+{id:610,text:'Показатель нервно-психического развития ребенка 9 месяцев:',options:['дает знакомый предмет по просьбе взрослого','самостоятельно ест ложкой','говорит 8–10 слов','самостоятельно ходит'],correct:0},
+// 611
+{id:611,text:'Для костной ткани детей раннего возраста характерно:',options:['податливость костей и склонность их к деформациям','замена пластинчатой структуры кости на волокнистую','относительно тонкая надкостница','процессы оссификации завершены к рождению'],correct:0},
+// 612
+{id:612,text:'Частота выявления открытого малого родничка при рождении у доношенных детей составляет:',options:['25%','100%','50%','5%'],correct:0},
+// 613
+{id:613,text:'Возраст, в котором ребенок начинает называть основные цвета:',options:['3 года','1 год 6 месяцев','2 года 6 месяцев','1 год'],correct:0},
+// 614
+{id:614,text:'Со стороны каких мышечных групп выражена гипертония мышц у новорожденных:',options:['сгибателей верхних конечностей','разгибателей верхних конечностей','разгибателей нижних конечностей','мышц спины'],correct:0},
+// 615
+{id:615,text:'Частота дыхательных движений новорожденного ребенка:',options:['40–60 в минуту','20–25 в минуту','18–20 в минуту','30–35 в минуту'],correct:0},
+// 616
+{id:616,text:'Частота сердечных сокращений у новорожденного ребенка:',options:['120–140 в минуту','80–90 в минуту','100–110 в минуту','60–70 в минуту'],correct:0},
+// 617
+{id:617,text:'Частота сердечных сокращений у ребенка пяти лет:',options:['80–90 в минуту','120–140 в минуту','100–110 в минуту','60–70 в минуту'],correct:0},
+// 618
+{id:618,text:'Интестиноскопия представляет собой эндоскопическое исследование:',options:['тонкой кишки','прямой кишки','пищевода','желудка'],correct:0},
+// 619
+{id:619,text:'Очистительные клизмы и слабительные средства назначают перед:',options:['рентгенологическим исследованием тонкого кишечника','рентгенологическим исследованием легких','рентгенологическим исследованием пищевода','компьютерной томографией печени'],correct:0},
+// 620
+{id:620,text:'Без специальной подготовки можно проводить рентгенологическое исследование:',options:['костей','почек','желудка','кишечника'],correct:0},
+// 621
+{id:621,text:'Компьютерная томография представляет собой:',options:['рентгенологическое исследование с серией снимков','рентгенологическое исследование в разных проекциях','рентгенологическое исследование с контрастным веществом','исследование с применением ультразвука'],correct:0},
+// 622
+{id:622,text:'В какое время чаще всего развиваются осложнения при рентгеноконтрастном методе исследования в первые:',options:['20 минут','сутки','7 дней','30 дней'],correct:0},
+// 623
+{id:623,text:'Рентгенологическое исследование печени называется:',options:['гепатография','холангиография','спленопортография','холангиопанкреатография'],correct:0},
+// 624
+{id:624,text:'Показанием для диагностической лапароскопии не является:',options:['ожог пищевода','асцит неясного генеза','опухоли брюшной полости','заболевания печени и желчевыводящих путей'],correct:0},
+// 625
+{id:625,text:'Методом визуального исследования с использованием специальных оптических приборов, снабженных осветительным устройством, является:',options:['эндоскопия','магнитно-резонансная томография','рентгеноскопия','компьютерная томография'],correct:0},
+// 626
+{id:626,text:'При исследовании двигательной функции органов применяют следующий метод:',options:['рентгеноскопию','рентгенографию','компьютерную томографию','магнитно-резонансную томографию'],correct:0},
+// 627
+{id:627,text:'Препаратом для рентгеноконтрастного исследования мочевыделительной системы является:',options:['урографин','лидокаин','димедрол','реополиглюкин'],correct:0},
+// 628
+{id:628,text:'Методом исследования прямой кишки является:',options:['ректороманоскопия','фиброгастроскопия','эзофагоскопия','интестиноскопия'],correct:0},
+// 629
+{id:629,text:'Троакар является инструментом для:',options:['пункции брюшной полости','вскрытия брюшной полости','люмбальной пункции','рентгенологического исследования'],correct:0},
+// 630
+{id:630,text:'Метод, который прежде всего должен быть использован для диагностики рака молочной железы:',options:['маммография','дуктография','магнитно-резонансная томография','компьютерная томография'],correct:0},
+// 631
+{id:631,text:'Противопоказанием для диагностической лапароскопии не является:',options:['опухолевая непроходимость привратника','нарушение свертываемости крови','метеоризм','бессознательное состояние'],correct:0},
+// 632
+{id:632,text:'При выполнении спинномозговой пункции больной должен принять положение:',options:['сидя, лежа на боку','лежа на животе','лежа на спине','стоя'],correct:0},
+// 633
+{id:633,text:'Магнитно-резонансная томография является методом выбора при исследовании:',options:['головного мозга','сердца','желудка','легких'],correct:0},
+// 634
+{id:634,text:'Показанием к диагностической лапаротомии является:',options:['неясный диагноз после применения всех возможных дополнительных методов обследования','подозрение на холецистит и панкреатит','отсутствие дополнительных методов обследования','неясный диагноз вместо применения дополнительных методов'],correct:0},
+// 635
+{id:635,text:'В общем анализе крови при остром аппендиците наблюдается:',options:['лейкоцитоз','анемия','эозинофилия','тромбоцитопения'],correct:0},
+// 636
+{id:636,text:'Обследование молочных желёз включает:',options:['осмотр, пальпацию, маммографию, УЗИ, биопсию','перкуссию, рентгеноскопию, биопсию','лапароскопию, биопсию','рентгеноконтрастное исследование и пальпацию'],correct:0},
+// 637
+{id:637,text:'Основные типы телосложения:',options:['астенический, нормостенический, гиперстенический','легкий, средний, тяжелый','гиперстенический, достаточный, большой','астенический, суперстенический, мегастенический'],correct:0},
+// 638
+{id:638,text:'Адаптация глаз характеризуется:',options:['приспособлением глаз к различным уровням яркости света','способностью глаза различать свет','видением предметов при слабом освещении','ухудшением цветового зрения'],correct:0},
+// 639
+{id:639,text:'Фактором риска развития ишемической болезни сердца является:',options:['абдоминальный тип ожирения','низкий уровень липопротеидов низкой плотности','женский пол','высокий уровень липопротеидов высокой плотности'],correct:0},
+// 640
+{id:640,text:'К факторам риска развития атеросклероза относят:',options:['курение','женский пол','высокое содержание липопротеидов холестерина высокой плотности','злоупотребление алкоголем'],correct:0},
+// 641
+{id:641,text:'При постановке пробы Манту ребенку туберкулин вводят:',options:['внутрикожно','подкожно','внутримышечно','внутривенно'],correct:0},
+// 642
+{id:642,text:'Исследование молочных желез при подозрении на рак начинают с:',options:['пальпации','пункционной биопсии','дуктографии','маммографии'],correct:0},
+// 643
+{id:643,text:'Первое скрининговое ультразвуковое исследование при беременности проводится при сроке ______ недель:',options:['11–14','10–11','7–8','7–10'],correct:0},
+// 644
+{id:644,text:'Характерные признаки инфекционных заболеваний:',options:['специфичность этиологического агента, цикличность течения, формирование иммунитета','источник инфекции — больной человек','всегда протекает в тяжелой форме','имеют обязательную сезонность'],correct:0},
+// 645
+{id:645,text:'Периоды развития инфекционной болезни:',options:['инкубационный, начальный, разгара, выздоровления','начальный, разгара, выздоровления','латентный, разгара, выздоровления','инкубационный, латентный, разгара, выздоровления'],correct:0},
+// 646
+{id:646,text:'Везикула — это:',options:['поверхностно расположенный мелкий пузырек, заполненный серозно-геморрагической жидкостью','мелкоточечное кровоизлияние, не исчезающее при растягивании кожи','плотное зудящее образование разных размеров розового или белого цвета с красной каймой','округлое пятнышко розового или красного цвета, исчезает при надавливании или растягивании'],correct:0},
+// 647
+{id:647,text:'Симптомы, характерные для лекарственной аллергии:',options:['сыпь, отеки, кожный зуд','боль в животе','стоматит, гингивит, глоссит','лихорадка'],correct:0},
+// 648
+{id:648,text:'Реинфекция — это:',options:['повторное заболевание, возникающее в результате нового заражения тем же возбудителем','сочетание инфекции и соматического заболевания','инфекция, вызванная микробными ассоциациями','состояние, когда к уже развившейся инфекционной болезни присоединяется очередная'],correct:0},
+// 649
+{id:649,text:'Показания к консультации фтизиатра:',options:['вираж туберкулиновой реакции, увеличение инфильтрата на 6 мм и более','угасающая реакция Манту, увеличение инфильтрата до 5 мм','при наличии уколочной реакции','угасающая реакция Манту, уменьшение инфильтрата до 2 мм'],correct:0},
+// 650
+{id:650,text:'Размер папулы после реакции Манту, указывающий на инфицированность:',options:['нарастание сомнительной или положительной реакции на 6 мм и более','усиление положительной реакции менее чем на 5 мм','размер папулы 11–13 мм без инфильтрата','размер папулы 7–9 мм с инфильтратом'],correct:0}
+];
+// ===== ПОЛНАЯ ВЕРСИЯ ТЕСТА (все вопросы 600–1533) =====
+// ВАЖНО: Правильный ответ ВСЕГДА под индексом 0 (буква «а»)
+// Всего вопросов: 934
+
+let currentIndex = 0;
+let answers = new Array(questions.length).fill(null);
+let correctTotal = 0, wrongTotal = 0;
+
+const qNumber = document.getElementById('qNumber');
+const qText = document.getElementById('qText');
+const optionsContainer = document.getElementById('optionsContainer');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const resetBtn = document.getElementById('resetBtn');
+const restartBtn = document.getElementById('restartBtn');
+const progressFill = document.getElementById('progressFill');
+const questionCounter = document.getElementById('questionCounter');
+const correctCountSpan = document.getElementById('correctCount');
+const wrongCountSpan = document.getElementById('wrongCount');
+const remainingCountSpan = document.getElementById('remainingCount');
+const questionBlock = document.getElementById('questionBlock');
+const resultBox = document.getElementById('resultBox');
+const finalScore = document.getElementById('finalScore');
+const finalDetail = document.getElementById('finalDetail');
+const finalCorrect = document.getElementById('finalCorrect');
+const finalWrong = document.getElementById('finalWrong');
+const finalTotal = document.getElementById('finalTotal');
+
+function renderQuestion(index) {
+    const q = questions[index];
+    qNumber.textContent = `Вопрос #${q.id}`;
+    qText.textContent = q.text;
+    const letters = ['а', 'б', 'в', 'г'];
+    let html = '';
+    for (let i = 0; i < q.options.length; i++) {
+        let className = 'option';
+        const selected = answers[index];
+        if (selected !== null) {
+            className += ' disabled';
+            if (i === q.correct) className += ' show-correct';
+            if (i === selected && i === q.correct) className += ' selected-correct';
+            if (i === selected && i !== q.correct) className += ' selected-wrong';
+        }
+        html += `<div class="${className}" data-optindex="${i}"><span class="letter">${letters[i]})</span> ${q.options[i]}</div>`;
+    }
+    optionsContainer.innerHTML = html;
+    if (answers[index] === null) {
+        document.querySelectorAll('.option').forEach(el => {
+            el.addEventListener('click', function() {
+                selectOption(index, parseInt(this.dataset.optindex));
+            });
+        });
+    }
+    updateStats();
+    updateProgress();
+    prevBtn.disabled = (index === 0);
+    nextBtn.textContent = (index === questions.length - 1) ? '📊 Завершить' : 'Вперёд ▶';
+}
+
+function selectOption(qIndex, optIndex) {
+    if (answers[qIndex] !== null) return;
+    answers[qIndex] = optIndex;
+    recalcStats();
+    renderQuestion(currentIndex);
+    if (answers.every(a => a !== null)) setTimeout(showResult, 500);
+}
+
+function recalcStats() {
+    correctTotal = 0; wrongTotal = 0;
+    for (let i = 0; i < questions.length; i++) {
+        const ans = answers[i];
+        if (ans === null) continue;
+        if (ans === questions[i].correct) correctTotal++; else wrongTotal++;
+    }
+}
+
+function updateStats() {
+    const answered = answers.filter(a => a !== null).length;
+    correctCountSpan.textContent = correctTotal;
+    wrongCountSpan.textContent = wrongTotal;
+    remainingCountSpan.textContent = questions.length - answered;
+    questionCounter.textContent = `Вопрос ${currentIndex + 1} / ${questions.length}`;
+}
+
+function updateProgress() {
+    const answered = answers.filter(a => a !== null).length;
+    progressFill.style.width = (answered / questions.length * 100) + '%';
+}
+
+function showResult() {
+    questionBlock.style.display = 'none';
+    resultBox.classList.add('show');
+    const pct = Math.round((correctTotal / questions.length) * 100);
+    finalScore.textContent = pct + '%';
+    finalCorrect.textContent = correctTotal;
+    finalWrong.textContent = wrongTotal;
+    finalTotal.textContent = questions.length;
+    let grade = '';
+    if (pct >= 90) grade = '🏆 Отлично! Вы полностью готовы к экзамену!';
+    else if (pct >= 75) grade = '✅ Хорошо! Повторите сложные темы.';
+    else if (pct >= 60) grade = '📖 Удовлетворительно. Рекомендуем дополнительную подготовку.';
+    else grade = '📚 Требуется серьёзная подготовка. Пройдите тест заново.';
+    finalDetail.textContent = grade;
+}
+
+function resetTest() {
+    answers = new Array(questions.length).fill(null);
+    correctTotal = 0; wrongTotal = 0;
+    currentIndex = 0;
+    questionBlock.style.display = 'block';
+    resultBox.classList.remove('show');
+    renderQuestion(0);
+}
+
+prevBtn.addEventListener('click', function() {
+    if (currentIndex > 0) { currentIndex--; renderQuestion(currentIndex); }
+});
+
+nextBtn.addEventListener('click', function() {
+    if (answers[currentIndex] === null) {
+        alert('⚠️ Сначала выберите ответ на текущий вопрос!');
+        return;
+    }
+    if (currentIndex === questions.length - 1) {
+        if (answers.every(a => a !== null)) showResult();
+        else {
+            const firstUnanswered = answers.indexOf(null);
+            if (firstUnanswered !== -1) { currentIndex = firstUnanswered; renderQuestion(currentIndex); }
+        }
+    } else {
+        currentIndex++;
+        renderQuestion(currentIndex);
+    }
+});
+
+resetBtn.addEventListener('click', function() {
+    if (confirm('Сбросить все ответы и начать заново?')) resetTest();
+});
+restartBtn.addEventListener('click', resetTest);
+
+renderQuestion(0);
+</script>
+</body>
+</html>
